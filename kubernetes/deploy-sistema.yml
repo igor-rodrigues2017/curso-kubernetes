@@ -1,0 +1,67 @@
+#é possivel deixar tudo em um único arquivo
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: permissao-imagens
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: permissao-sessao
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: aplicacao-sistema-statefulset
+spec:
+  selector:
+    matchLabels:
+      name: aplicacao-sistema-pod-statefulset
+  serviceName: aplicacao-sistema-statefulset
+  template:
+    metadata:
+      labels:
+        name: aplicacao-sistema-pod-statefulset
+    spec:
+      containers:
+        - name: container-aplicacao-sistema-statefulset
+          image: igorrodrigues/noticias-alura:v3
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /var/www/html/uploads
+              name: imagens
+            - mountPath: /tmp
+              name: sessoes
+      volumes:
+        - name: imagens
+          persistentVolumeClaim:
+            claimName: permissao-imagens
+        - name: sessoes
+          persistentVolumeClaim:
+            claimName: permissao-sessao
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servico-aplicacao-sistema-statefulset
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      nodePort: 30438
+  selector:
+    name: aplicacao-sistema-pod-statefulset

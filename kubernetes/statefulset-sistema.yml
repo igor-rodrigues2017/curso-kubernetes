@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: aplicacao-sistema-statefulset
+spec:
+  selector:
+    matchLabels:
+      name: aplicacao-sistema-pod-statefulset
+  serviceName: aplicacao-sistema-statefulset
+  template:
+    metadata:
+      labels:
+        name: aplicacao-sistema-pod-statefulset
+    spec:
+      containers:
+        - name: container-aplicacao-sistema-statefulset-v5
+          image: igorrodrigues/noticias-alura:v5
+          ports:
+            - containerPort: 80
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  ["sh", "enviarMensagem.sh"]
+          volumeMounts:
+            - mountPath: /var/www/html/uploads
+              name: imagens
+            - mountPath: /tmp
+              name: sessoes
+      volumes:
+        - name: imagens
+          persistentVolumeClaim:
+            claimName: permissao-imagens
+        - name: sessoes
+          persistentVolumeClaim:
+            claimName: permissao-sessao

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aplicao-noticia-deployment
+spec:
+  selector:
+    matchLabels:
+      name: aplicao-noticia-pod
+  template:
+    metadata:
+      labels:
+        name: aplicao-noticia-pod
+    spec:
+      containers:
+        - name: container-aplicacao-v4
+          image: igorrodrigues/noticias-alura:v4
+          resources:
+            requests:
+              cpu: 400m
+          ports:
+            - containerPort: 80
